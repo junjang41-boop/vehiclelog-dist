@@ -23,7 +23,7 @@
 - Jetpack Compose (BOM 2024.06) + Material3 · Navigation Compose
 - Room 2.6.1 (KSP) · DataStore Preferences
 - play-services-location · accompanist-permissions · osmdroid 6.1.18 · WorkManager 2.9
-- 패키지 `com.vehiclelog.app` · minSdk 26 · target/compile 34 · **디버그 서명(사이드로드)**
+- 패키지 `com.vehiclelog.app` · minSdk 26 · target/compile 34 · **릴리스 서명(자체 키스토어) · 사이드로드**
 
 ## 빌드 (개발 PC: Windows)
 한글 경로에서 안드로이드 빌드가 깨져 **ASCII 경로 `D:\VehicleLog`** 사용. 최종 APK는 `D:\차량일지자동생성`(사용자 폴더)로 복사.
@@ -46,8 +46,15 @@ $env:JAVA_HOME="D:\VehicleLog\.toolchain\jdk\jdk-17.0.19+10"
   powershell -ExecutionPolicy Bypass -File D:\VehicleLog\release.ps1 -Notes "변경점"
   ```
   (빌드 + APK 복사 + `gh release create vN`)
-- ⚠️ **반드시 같은 PC(같은 디버그 키스토어)로 빌드**해야 인플레이스 업데이트가 됨.
+- ⚠️ **반드시 같은 PC(같은 릴리스 키스토어)로 빌드**해야 인플레이스 업데이트가 됨.
 - 무탭 완전자동은 Play 스토어만 가능. 사이드로드는 "다운로드 + 설치 1탭".
+
+## 서명 / 키스토어 (v0.10~ 정식 서명)
+- 디버그 서명이 아니라 **자체 릴리스 키**로 서명 → Play Protect 경고 완화. (단, 사이드로드 "알 수 없는 출처" 설치 프롬프트는 그대로 — 서명과 무관)
+- 키스토어: `D:\VehicleLog\.toolchain\keystore\vehiclelog-release.jks` (alias `vehiclelog`).
+- 설정: `D:\VehicleLog\keystore.properties` (storePassword/keyPassword). **공개 저장소 금지 · 반드시 백업** — 분실 시 인플레이스 업데이트 영구 불가.
+- 릴리스 빌드: `:app:assembleRelease` → `app/build/outputs/apk/release/app-release.apk` (디버그 빌드는 `:app:assembleDebug`).
+- ⚠️ 디버그→릴리스 등 **서명 키가 바뀌면 1회 삭제 후 재설치** 필요(서명이 다르면 기존 설치 위 업데이트 불가).
 
 ## 프로젝트 구조 (`app/src/main/java/com/vehiclelog/app`)
 - `data/` Room(Entity: Vehicle/Place/Trip/TripPoint, DAO, AppDatabase **v3**), Repository, SettingsStore(DataStore), Enums(PlaceCategory/TripPurpose/FuelType), **CompanySites**, **SiteSeeder**
